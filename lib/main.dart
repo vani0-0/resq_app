@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:hanap_app/routes.dart';
+import 'package:hanap_app/pages/home/home.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -17,7 +17,8 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      routes: Routes.routes,
+      theme: ThemeData(useMaterial3: true),
+      home: const HomePage(),
     );
   }
 }
