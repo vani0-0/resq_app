@@ -21,7 +21,9 @@ class _HomePageState extends State<HomePage> {
         selectedIndex: currentPage,
         destinations: destinations,
       ),
-      body: bodies[currentPage],
+      body: SafeArea(
+        child: bodies[currentPage],
+      ),
     );
   }
 

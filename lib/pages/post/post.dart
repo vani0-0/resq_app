@@ -1,26 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hanap_app/pages/post/create.form.dart';
 
-class PostPage extends StatefulWidget {
+class PostPage extends StatelessWidget {
   const PostPage({super.key});
 
   @override
-  State<PostPage> createState() => _PostPageState();
-}
-
-class _PostPageState extends State<PostPage> {
-  final TextEditingController _controllerName = TextEditingController();
-  final TextEditingController _controllerAge = TextEditingController();
-  final TextEditingController _controllerLastSeen = TextEditingController();
-  final TextEditingController _controllerLocation = TextEditingController();
-  final TextEditingController _controllerBounty = TextEditingController();
-
-  GlobalKey<FormState> key = GlobalKey();
-  
-
-  @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Form(child: Column()),
-    );
+    return const Padding(padding: EdgeInsets.all(12), child: CreateForm());
   }
 }
