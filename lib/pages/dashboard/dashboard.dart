@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hanap_app/models/content.dart';
+import 'package:hanap_app/pages/dashboard/missing_card.dart';
 import 'package:hanap_app/services/database_service.dart';
 
 class DashboardPage extends StatefulWidget {
@@ -24,15 +24,9 @@ class _DashboardPageState extends State<DashboardPage> {
         }
         return ListView.builder(
           itemCount: missings.length,
-          itemBuilder: (context, index) {
-            Content content = missings[index].data();
-            return Padding(
-              padding: const EdgeInsets.all(10),
-              child: ListTile(
-                title: Text(content.name),
-              ),
-            );
-          },
+          itemBuilder: (context, index) => MissingCard(
+            missing: missings[index].data(),
+          ),
         );
       },
     );
