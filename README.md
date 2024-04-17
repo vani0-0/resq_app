@@ -10,9 +10,8 @@ To set up and run the ResQ app, follow these steps:
 
 1. **Clone the Repository:**
 ```   
-git clone https://github.com/yourusername/resq_app.git 
+git clone https://github.com/vani0-0/resq_app.git
 ```
-
 
 2. **Navigate to the Project Directory:**
 ```
