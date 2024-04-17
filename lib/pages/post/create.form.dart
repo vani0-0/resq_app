@@ -13,8 +13,15 @@ class CreateForm extends StatefulWidget {
 
 class _CreateFormState extends State<CreateForm> {
   final _globalKey = GlobalKey<FormState>();
-
+  DateTime? _selectedDate;
+  final TextEditingController _dateController = TextEditingController();
   List<String> imageUrls = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _dateController.text = _formatDate(DateTime.now());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +46,23 @@ class _CreateFormState extends State<CreateForm> {
                 labelText: 'Age',
               ),
             ),
-            TextFormField(
-              keyboardType: TextInputType.datetime, // Date input for last seen
-              decoration: const InputDecoration(
-                icon: Icon(Icons.access_time),
-                hintText: 'Enter last seen',
-                labelText: 'Last Seen',
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.access_time),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _dateController,
+                      readOnly: true,
+                      onTap: _pickDate,
+                      decoration: const InputDecoration(
+                        labelText: 'Last Seen',
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             TextFormField(
@@ -104,6 +122,25 @@ class _CreateFormState extends State<CreateForm> {
     );
   }
 
+  Future<void> _pickDate() async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        _selectedDate = pickedDate;
+        _dateController.text = _formatDate(pickedDate);
+      });
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+  }
+
   void _uploadImage() async {
     ImagePicker imagePicker = ImagePicker();
     XFile? xFile = await imagePicker.pickImage(source: ImageSource.gallery);
@@ -126,7 +163,6 @@ class _CreateFormState extends State<CreateForm> {
       setState(() {
         imageUrls.add(imageUrl);
       });
-      
     } catch (e) {
       debugPrint(e.toString());
       return;
