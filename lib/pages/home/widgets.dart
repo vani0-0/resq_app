@@ -15,7 +15,7 @@ const List<Widget> destinations = [
 
 List<AppBar> appBars = [
   AppBar(
-    title: const Text("Hanap App"),
+    title: const Text("ResQ App"),
   ),
   AppBar(
     title: const Text("Post Missing person"),
