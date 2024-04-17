@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class CreateForm extends StatefulWidget {
   const CreateForm({super.key});
@@ -9,6 +13,8 @@ class CreateForm extends StatefulWidget {
 
 class _CreateFormState extends State<CreateForm> {
   final _globalKey = GlobalKey<FormState>();
+
+  List<String> imageUrls = [];
 
   @override
   Widget build(BuildContext context) {
@@ -49,22 +55,33 @@ class _CreateFormState extends State<CreateForm> {
                 labelText: 'Bounty (Reward)',
               ),
             ),
-            Row(
-              children: [
-                const Icon(Icons.image), // Icon for image attachment
-                const SizedBox(width: 10),
-                Expanded(
-                  child: TextFormField(
-                    keyboardType:
-                        TextInputType.url, // URL input for image attachment
-                    decoration: const InputDecoration(
-                      hintText: 'Attach image URL',
-                      labelText: 'Picture / Image',
-                    ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Row(
+                children: [
+                  const Icon(Icons.image),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: _uploadImage,
+                    child: const Text("Upload Image"),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
+            if (imageUrls.isNotEmpty)
+              Column(
+                children: imageUrls.map((imageUrl) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(vertical: 10),
+                    child: Image.network(
+                      imageUrl,
+                      width: 200,
+                      height: 200,
+                      fit: BoxFit.cover,
+                    ),
+                  );
+                }).toList(),
+              ),
             Container(
               margin: const EdgeInsets.only(top: 14.0),
               width: double.infinity,
@@ -85,5 +102,34 @@ class _CreateFormState extends State<CreateForm> {
         ),
       ),
     );
+  }
+
+  void _uploadImage() async {
+    ImagePicker imagePicker = ImagePicker();
+    XFile? xFile = await imagePicker.pickImage(source: ImageSource.gallery);
+
+    if (xFile == null) return;
+
+    String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDirImage = referenceRoot.child('images');
+
+    Reference referenceImageToUpload = referenceDirImage.child(uniqueFileName);
+    try {
+      await referenceImageToUpload.putFile(
+        File(xFile.path),
+        SettableMetadata(contentType: 'image/jpeg'),
+      );
+      String imageUrl = await referenceImageToUpload.getDownloadURL();
+
+      setState(() {
+        imageUrls.add(imageUrl);
+      });
+      
+    } catch (e) {
+      debugPrint(e.toString());
+      return;
+    }
   }
 }
