@@ -1,2 +1,2 @@
-# Hanap-App
+# ResQ-App
 Innolympics prototype app
