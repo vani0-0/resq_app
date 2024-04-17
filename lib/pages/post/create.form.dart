@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:hanap_app/models/models.dart';
+import 'package:hanap_app/services/database_service.dart';
 import 'package:image_picker/image_picker.dart';
 
 class CreateForm extends StatefulWidget {
@@ -12,9 +14,15 @@ class CreateForm extends StatefulWidget {
 }
 
 class _CreateFormState extends State<CreateForm> {
+  final DatabaseService _dbService = DatabaseService();
   final _globalKey = GlobalKey<FormState>();
   DateTime? _selectedDate;
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _ageController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
+  final TextEditingController _bountyController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   List<String> imageUrls = [];
 
   @override
@@ -31,20 +39,34 @@ class _CreateFormState extends State<CreateForm> {
         child: Column(
           children: <Widget>[
             TextFormField(
-              keyboardType: TextInputType.text, // Text input for name
+              keyboardType: TextInputType.text,
+              controller: _nameController,
               decoration: const InputDecoration(
                 icon: Icon(Icons.person),
                 hintText: 'Enter name',
                 labelText: 'Name',
               ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter name';
+                }
+                return null;
+              },
             ),
             TextFormField(
-              keyboardType: TextInputType.number, // Number input for age
+              keyboardType: TextInputType.number,
+              controller: _ageController,
               decoration: const InputDecoration(
                 icon: Icon(Icons.calendar_today),
                 hintText: 'Enter age',
                 labelText: 'Age',
               ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter age';
+                }
+                return null;
+              },
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -66,12 +88,35 @@ class _CreateFormState extends State<CreateForm> {
               ),
             ),
             TextFormField(
-              keyboardType: TextInputType.number, // Number input for bounty
+              keyboardType: TextInputType.number,
+              controller: _bountyController,
               decoration: const InputDecoration(
                 icon: Icon(Icons.attach_money),
                 hintText: 'Enter bounty',
                 labelText: 'Bounty (Reward)',
               ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter bounty';
+                }
+                return null;
+              },
+            ),
+            TextFormField(
+              keyboardType: TextInputType.multiline,
+              controller: _descriptionController,
+              maxLines: null,
+              decoration: const InputDecoration(
+                icon: Icon(Icons.description),
+                hintText: 'Enter description',
+                labelText: 'Description',
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please add more description';
+                }
+                return null;
+              },
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -104,12 +149,12 @@ class _CreateFormState extends State<CreateForm> {
               margin: const EdgeInsets.only(top: 14.0),
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: null,
+                onPressed: _submitForm,
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(
                     const Color.fromRGBO(228, 151, 41, 1),
                   ),
-                ), // You can add your button style here if needed
+                ),
                 child: const Text(
                   "Submit",
                   style: TextStyle(color: Colors.white),
@@ -120,6 +165,33 @@ class _CreateFormState extends State<CreateForm> {
         ),
       ),
     );
+  }
+
+  void _submitForm() {
+    if (_globalKey.currentState!.validate()) {
+      String name = _nameController.text;
+      int age = int.tryParse(_ageController.text) ?? 0;
+      String description = _descriptionController.text;
+      int bounty = int.tryParse(_bountyController.text) ?? 0;
+
+      // Ensure that _selectedDate is not null before using it
+      DateTime? lastSeen = _selectedDate ?? DateTime.now();
+
+      Content newData = Content(
+        name: name,
+        age: age,
+        description: description,
+        bounty: bounty,
+        lastSeen: lastSeen,
+        imageUrls: imageUrls,
+      );
+      _dbService.addMissing(newData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Processing Data')),
+      );
+    }
+    return;
   }
 
   Future<void> _pickDate() async {
